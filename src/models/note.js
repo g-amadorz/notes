@@ -56,29 +56,21 @@ noteSchema.index({ title: 'text', content: 'text', tags: 'text' });
 noteSchema.index({ createdAt: -1 });
 noteSchema.index({ userId: 1, createdAt: -1 });
 
-// Pre-save middleware to update the updatedAt field
 noteSchema.pre('save', function(next) {
   this.updatedAt = Date.now();
   next();
 });
 
-// Static method to find notes by tag
+noteSchema.statics.findByTitle = function(title) {
+  return this.find({ title: title });
+};
+
 noteSchema.statics.findByTag = function(tag) {
   return this.find({ tags: { $in: [tag] } });
 };
 
-// Instance method to add a tag
-noteSchema.methods.addTag = function(tag) {
-  if (!this.tags.includes(tag.toLowerCase())) {
-    this.tags.push(tag.toLowerCase());
-  }
-  return this.save();
-};
-
-// Instance method to remove a tag
-noteSchema.methods.removeTag = function(tag) {
-  this.tags = this.tags.filter(t => t !== tag.toLowerCase());
-  return this.save();
+noteSchema.statics.findByCategory = function(category) {
+  return this.find({ category: category });
 };
 
 const Note = mongoose.models.Note || mongoose.model('Note', noteSchema);

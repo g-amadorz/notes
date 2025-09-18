@@ -35,4 +35,17 @@ const noteBookSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+
+noteBookSchema.pre('save', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+noteBookSchema.pre('updateOne', function(next) {
+  this.updatedAt = Date.now();
+  next();
+});
+
+noteBookSchema.index({ title: 'text', content: 'text', tags: 'text' });
+
 module.exports = mongoose.model('NoteBook', noteBookSchema);

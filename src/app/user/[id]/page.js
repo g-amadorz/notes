@@ -12,49 +12,36 @@ export default function UserPage() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
 
-  // Mock data - replace with actual API calls
+  // Fetch user data from API
   useEffect(() => {
-    // Simulate API call
-    setTimeout(() => {
-      setUser({
-        id: userId,
-        username: 'johndoe',
-        email: 'john.doe@example.com',
-        createdAt: '2024-01-15T10:30:00Z',
-        totalNotes: 24,
-        totalNotebooks: 5,
-        lastActive: '2024-09-16T18:45:00Z'
-      });
-      
-      setUserNotes([
-        {
-          id: '1',
-          title: 'Meeting Notes - Q4 Planning',
-          content: 'Discussed quarterly objectives and key milestones...',
-          createdAt: '2024-09-15T14:30:00Z',
-          tags: ['work', 'planning', 'q4'],
-          notebook: 'Work Notes'
-        },
-        {
-          id: '2',
-          title: 'Book Ideas',
-          content: 'Collection of interesting book recommendations...',
-          createdAt: '2024-09-14T09:15:00Z',
-          tags: ['books', 'reading', 'personal'],
-          notebook: 'Personal'
-        },
-        {
-          id: '3',
-          title: 'Recipe: Homemade Pizza',
-          content: 'Ingredients and steps for making pizza from scratch...',
-          createdAt: '2024-09-13T19:20:00Z',
-          tags: ['cooking', 'recipe', 'italian'],
-          notebook: 'Recipes'
+    const fetchUserData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch(`/api/users/${userId}`);
+        
+        if (!response.ok) {
+          if (response.status === 404) {
+            setUser(null);
+            setLoading(false);
+            return;
+          }
+          throw new Error('Failed to fetch user data');
         }
-      ]);
-      
-      setLoading(false);
-    }, 1000);
+        
+        const userData = await response.json();
+        setUser(userData);
+        setUserNotes(userData.recentNotes || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+        setUser(null);
+        setLoading(false);
+      }
+    };
+
+    if (userId) {
+      fetchUserData();
+    }
   }, [userId]);
 
   const formatDate = (dateString) => {
